@@ -2,15 +2,16 @@
 Replicated some games using turtle module without any additional assets
 
 ### Snake
-<img src="/gifs/snake.gif" width="400">
+<img src="/gifs/snake.gif" width="600">
+
 ### Turtle Race
-![Race gif](/gifs/racing.gif)
+<img src="/gifs/racing.gif" width="600">
 
 ### Pong
-![Pong gif](/gifs/pong.gif)
+<img src="/gifs/pong.gif" width="600">
 
 ### Flappy Bird
-![Flappy gif](/gifs/flappy.gif)
+<img src="/gifs/flappy.gif" width="600">
 
 ### Car dodge
-![dodge gif](/gifs/car_dodge.gif)
+<img src="/gifs/car dodge.gif" width="600">
