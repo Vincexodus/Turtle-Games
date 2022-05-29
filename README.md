@@ -2,8 +2,7 @@
 Replicated some games using turtle module without any additional assets
 
 ### Snake
-![Snake gif](/gifs/snake.gif)
-
+<img src="/gifs/snake.gif" width="400">
 ### Turtle Race
 ![Race gif](/gifs/racing.gif)
 
