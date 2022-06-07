@@ -1,7 +1,9 @@
 import turtle
+import random
+import math
 
 screen = turtle.Screen()
-screen.title("Space Invasion")
+screen.title("Space Invaders")
 screen.bgcolor("black")
 screen.setup(width=600, height=800)
 
@@ -24,6 +26,17 @@ bullet.shapesize(0.5, 0.5)
 bullet.penup()
 bullet.left(90)
 bullet.hideturtle()
+bullet.goto(1000, 1000)
+
+# enemy quadron 
+indicator = turtle.Turtle()
+indicator.speed(0)
+indicator.shape("square")
+indicator.color("white")
+indicator.shapesize(0.1, 23)
+indicator.penup()
+indicator.goto(-10, 350)
+
 # player score
 score = turtle.Turtle()
 score.speed(0)
@@ -33,43 +46,49 @@ score.hideturtle()
 score.goto(0, 360)
 score.write("Score : 0",align="center", font=("Courier", 16, "normal"))
 
-# input motion
+# motion input
 def left():
   if player.xcor() >= -260:
     x = player.xcor()
-    x -= 30
+    x -= 20
     player.setx(x)
 
 def right():
   if player.xcor() <= 260:
     x = player.xcor()
-    x += 30
+    x += 20
     player.setx(x)
 
-timer = 0
-shooting = True
-load = False
-# bullet appear
-def shoot(load):
-  if load:
+state = True
+# bullet input
+def shoot():
+  global state
+  if state == True:
+    state = False
+    bullet.goto(player.xcor(), player.ycor() + 20)
     bullet.showturtle()
-    load = False
-  bullet.goto(player.xcor(), player.ycor() + 10)
-# all available color & spawn position
+
+# object collision
+def collision(a ,b):
+  distance = math.sqrt(math.pow(a.xcor() - b.xcor(), 2) + math.pow(a.ycor() - b.ycor(), 2))
+  return True if distance < 25 else False
+
+# color based on height
 alien_colors = ["green", "blue", "red", "orange", "yellow"]
 
-# obtain all x coordinates of car
+# available alien x position
 left_alien = -220
 total_pos = []
 for i in range(8):
   total_pos.append(left_alien)
+  # interval distance between each other
   left_alien += 60
 
 all_alien = []
 height = [340, 300, 260, 220, 180]
-# display cars into a list
 for i in  height:
-  for j in total_pos:
+  # random column spawns
+  for j in random.sample(total_pos, random.randint(1, 4)):
     alien = turtle.Turtle()
     alien.hideturtle()
     alien.penup()
@@ -90,27 +109,62 @@ screen.onkeypress(shoot, "space")
 
 playing = True
 speed = 10
-direction = 1
-new_height = [h-20 for h in height]
-print(new_height*5)
+direction, point  = 1, 0
+
 while playing:
-  # bullet.forward(10)
   for alien in all_alien:
-    if alien.xcor() > 260:
-      direction = -1
-      alien.sety(new_height[all_alien.index(alien)])
-    elif alien.xcor() < -260:
-      direction = 1 
-    alien.setx(alien.xcor() + speed * direction)
-    
+    # alien motion
+    x = alien.xcor()
+    x += speed * direction
+    alien.setx(x)
+    # to detect edges
+    indicator.setx(indicator.xcor() + speed/len(all_alien) * direction)
+    # quadron touches right edge
+    if indicator.xcor() + indicator.shapesize()[1]*10 > 290:
+      for a in all_alien:
+        y = a.ycor()
+        y -= 20
+        a.sety(y)
+      direction *= -1
+    # quadron touches left edge
+    elif indicator.xcor() - indicator.shapesize()[1]*10 < -290:
+      for a in all_alien:
+        y = a.ycor()
+        y -= 20
+        a.sety(y)
+      direction *= -1
+    # bullet collide with alien
+    if collision(bullet, alien):
+      alien.goto(1000, 1000)
+      bullet.goto(player.pos())
+      bullet.hideturtle()
+      point += 1
+      score.clear()
+      score.write("Score : {}".format(point),align="center", font=("Courier", 16, "normal"))
+    # player collide with alien
+    if collision(player, alien) or alien.ycor() < player.ycor() + 20:
+      playing = False
+  # space button pressed
+  if not state:
+    y = bullet.ycor()
+    y += 75
+    bullet.sety(y)
+  # bullet exceed edge of top
+  if bullet.ycor() > 360:
+    state = True
+    bullet.hideturtle()
+  if point == len(all_alien):
+    break
 
-
+# lose the game
 if not playing:
   score.clear()
   score.goto(0, 0)
-  score.write("Game Over !!!",align="center", font=("Courier", 16, "normal"))
+  score.write("Game Over !!!\n {} points".format(point),align="center", font=("Courier", 16, "normal"))
 
-# enemy move down after reaching left and right
-# player bullet collision with enemy
-# enemy bullet spontaneous shoot toward player
+# win the game
+score.clear()
+score.goto(0, 0)
+score.write("Victory !!!\n {} points".format(point),align="center", font=("Courier", 16, "normal"))
+
 turtle.done()

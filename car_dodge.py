@@ -116,5 +116,8 @@ if not running:
   score.write("Score : {}".format(count//5),align="center", font=("Courier", 16, "normal"))
   
 turtle.done()
-# larger player collision surface
+
+# limits :
+#   move cars back to front instead of spawning 
+#   larger player collision surface
 

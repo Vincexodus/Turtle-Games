@@ -1,4 +1,5 @@
 import random
+import time
 import turtle
 
 screen = turtle.Screen()
@@ -15,6 +16,7 @@ player.shapesize(1.5)
 player.penup()
 player.goto(-300, -85)
 
+# fake display
 ground = turtle.Turtle()
 ground.speed(0)
 ground.shape("square")
@@ -23,16 +25,28 @@ ground.shapesize(10, 40)
 ground.penup()
 ground.goto(0, -200)
 
-obstacle = turtle.Turtle()
-obstacle.hideturtle()
-obstacle.speed(0)
-obstacle.shape("square")
-obstacle.color("red")
-obstacle.shapesize(4, 2)
-obstacle.penup()
-obstacle.goto(200, -60)
-obstacle.showturtle()
+obstacle_list = []
+# path blocking obstacle
+def create_obs(height, x, y):
+  obstacle = turtle.Turtle()
+  obstacle.hideturtle()
+  obstacle.speed(0)
+  obstacle.shape("square")
+  obstacle.color("brown")
+  obstacle.shapesize(height, 2)
+  obstacle.penup()
+  obstacle.goto(x, y - (4 - height)*10)
+  obstacle.showturtle()
+  return obstacle
 
+# obstacle horizontal position
+start_xpos = random.randint(100, 300)
+for i in range(3):
+  obs = create_obs(random.randint(2, 5), start_xpos, -60)
+  start_xpos += start_xpos
+  obstacle_list.append(obs)
+
+# scoreboard
 score = turtle.Turtle()
 score.hideturtle()
 score.speed(0)
@@ -41,35 +55,70 @@ score.penup()
 score.goto(300, 260)
 score.write("000000", align="center", font=("Courier", 16, "normal"))
 
+# display panel
+board = turtle.Turtle()
+board.hideturtle()
+board.speed(0)
+board.color("black")
+board.penup()
+
 floor = True
-def jump(floor):
+# input event
+def jump():
+  global floor 
   floor = False
-  
-screen.onkeypress(lambda: jump(floor), "space")
+
+# Keyboard bindings
+screen.onkeypress(jump, "space")
 screen.listen()
 
+extra_hitbox = player.shapesize()[1]*10
+# game stats
 count = 0
 playing = True
+move_speed = 10
+jump_speed = move_speed/5
+
+# game title
+board.write("Jumper", align="center", font=("Courier", 16, "normal"))
+time.sleep(2)
+board.clear()
 
 while playing:
-  obstacle.backward(10)
-  if not floor:
-    for i in range(10):
-      player.sety(player.ycor() + 2*i)
-    for i in range(10):
-      player.sety(player.ycor() - 2*i)
-
+  # update scores
   count += 1
   score.clear()
   score.write("{:06d}".format(count), align="center", font=("Courier", 16, "normal"))
-  # screen.update()
+  # for every obstacle
+  for obs in obstacle_list:
+    # obstacle within player range
+    if obs.xcor() < -280 and obs.xcor() > -340:
+      # player obstacle collision
+      if(player.xcor() + player.shapesize()[1]*10 + extra_hitbox > obs.xcor() + obs.shapesize()[1]*10) \
+      and (player.ycor() - player.shapesize()[0]*10 - extra_hitbox < obs.ycor() + obs.shapesize()[0]*10):
+        playing = False
+    # move forward continously
+    obs.backward(move_speed)
+    # obstacle reposition
+    if obs.xcor() < -380:
+      obs.setx(random.randint(600, 1200))
+  # when jumped
+  if not floor:
+    for i in range(8):
+      # move up
+      for obs in obstacle_list:
+        obs.backward(move_speed)
+        player.sety(player.ycor() + jump_speed*i)
+    for i in range(8):
+      # move down
+      for obs in obstacle_list:
+        obs.backward(move_speed)
+        player.sety(player.ycor() - jump_speed*i)
+  floor = True
 
+# game over
 if not playing:
-  board = turtle.Turtle()
-  board.hideturtle()
-  board.speed(0)
-  board.color("black")
-  board.penup()
+  board.clear()
   board.write("Game Over !", align="center", font=("Courier", 16, "normal"))
 
 turtle.done()
