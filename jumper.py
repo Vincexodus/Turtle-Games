@@ -2,6 +2,8 @@ import random
 import time
 import turtle
 
+from cv2 import moveWindow
+
 screen = turtle.Screen()
 screen.title("Jumping game")
 screen.bgcolor("lightblue")
@@ -85,6 +87,8 @@ time.sleep(2)
 board.clear()
 
 while playing:
+  # obstacle speed up
+  move_speed += 0.01
   # update scores
   count += 1
   score.clear()
@@ -92,10 +96,9 @@ while playing:
   # for every obstacle
   for obs in obstacle_list:
     # obstacle within player range
-    if obs.xcor() < -280 and obs.xcor() > -340:
-      # player obstacle collision
-      if(player.xcor() + player.shapesize()[1]*10 + extra_hitbox > obs.xcor() + obs.shapesize()[1]*10) \
-      and (player.ycor() - player.shapesize()[0]*10 - extra_hitbox < obs.ycor() + obs.shapesize()[0]*10):
+    if (obs.xcor() < -280 and obs.xcor() > -340):
+      # player touches obstacle
+      if(player.xcor() + player.shapesize()[1]*10 > obs.xcor() - obs.shapesize()[1]*10) or (player.ycor() - player.shapesize()[0]*10 > obs.ycor() + obs.shapesize()[0]*10):
         playing = False
     # move forward continously
     obs.backward(move_speed)
@@ -104,13 +107,13 @@ while playing:
       obs.setx(random.randint(600, 1200))
   # when jumped
   if not floor:
-    for i in range(8):
-      # move up
+    # velocity decreases as height increases
+    for i in range(7, 0 , -1):
       for obs in obstacle_list:
         obs.backward(move_speed)
         player.sety(player.ycor() + jump_speed*i)
     for i in range(8):
-      # move down
+      # velocity increases upon falling
       for obs in obstacle_list:
         obs.backward(move_speed)
         player.sety(player.ycor() - jump_speed*i)
@@ -121,4 +124,6 @@ if not playing:
   board.clear()
   board.write("Game Over !", align="center", font=("Courier", 16, "normal"))
 
+# issues 
+  # weird player collisions
 turtle.done()

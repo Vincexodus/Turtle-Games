@@ -115,7 +115,7 @@ screen.onkeypress(left, "Left")
 screen.onkeypress(right, "Right")
 
 # game stats
-count, lives, levitate_speed = 0, 5, 2
+count, lives, levitate_speed = 0, 5, 3
 falling, playing = True, True
 time.sleep(2)
 
@@ -126,7 +126,7 @@ while playing:
   score.write("{:06d}".format(count), align="center", font=("Courier", 16, "normal"))
   # gravity simulation
   if falling:
-    fall_speed = 1.25*levitate_speed
+    fall_speed = 0.75*levitate_speed
   else:
     fall_speed = -levitate_speed/len(total_lines) 
   falling = True
